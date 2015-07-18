@@ -1,0 +1,6 @@
+body				{ background: #333; }
+#page-wrap:after	{ content: "Smartphone layout"; }
+
+h2 span, section h3	{ display: none; }
+body				{ font_size: xx-large; }
+footer				{ font-size: large;}
