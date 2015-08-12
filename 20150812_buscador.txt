@@ -1,0 +1,30 @@
+formulario:
+<div><form name="buscador" method="get" action="/quizes">
+	<input type="text" name="search" placeholder="Escribe tu busqueda"> 
+	<input type="submit" value="Buscar" class="btn btn-info">
+</form></div>
+
+controlador:
+var search = req.query.search;
+
+if(search != null){
+	search = '%'+req.query.search.replace(/ /, '%')+'%';
+	models.Quiz.findAll({where: ["pregunta like ?", search], order:'pregunta ASC'}).then(function(quizes) {
+
+		console.log("contenido de quizes: " + quizes + " longitud: " + quizes.length);
+
+		if (quizes.length == 0){
+			console.log("sin resultaods");
+			res.render('sinResult', {errors: []});
+		} else {
+			res.render('quizes/index', {quizes: quizes, mensaje: false, errors: []}); }
+		}
+   ).catch(function(error) { next(error);});
+}
+
+vista sinResultados
+<div><form name="buscador" method="get" action="/quizes">
+	<input type="text" name="search" placeholder="Escribe tu busqueda"> 
+	<input type="submit" value="Buscar" class="btn btn-info">
+</form></div>
+<div>Esta busqueda no devolvió ningún resultado</div>

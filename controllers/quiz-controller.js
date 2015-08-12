@@ -18,10 +18,24 @@ exports.load = function(req, res, next, quizId) {
 
 //GET /quizes
 exports.index = function(req, res) {
-	models.Quiz.findAll().then( function(quizes) {
-		res.render('quizes/index.ejs',{quizes: quizes, errors: []});
+	
+	var search = req.query.search;
+
+	if(search != null){
+		search = '%'+req.query.search.replace(/ /, '%')+'%';
+		models.Quiz.findAll({where: ["pregunta like ?", search], order:'pregunta ASC'}).then(function(quizes) {
+			if (quizes.length == 0){		
+				res.render('quizes/sinResultados', {errors: []});
+			} else {				
+				res.render('quizes/index', {quizes: quizes, errors: []}); }
+			}
+		).catch(function(error) { next(error);});
+	} else {
+		models.Quiz.findAll().then( function(quizes) {
+			res.render('quizes/index.ejs',{quizes: quizes, errors: []});
 		}
-	).catch(function(error){next(error);})
+		).catch(function(error){next(error);})
+	}
 };
 
 //GET /quizes/:id
@@ -46,7 +60,7 @@ exports.answer = function(req, res) {
 //GET /quizes/new
 exports.new = function(req, res) {
 	var quiz = models.Quiz.build(
-		{pregunta:"Pregunta", respuesta: "Respuesta"}
+		{pregunta:"", respuesta: ""}
 	);
 	res.render('quizes/new',{quiz: quiz, errors: []});
 };
@@ -99,5 +113,5 @@ exports.destroy = function(req, res) {
 
 //GET /author
 exports.author = function(req, res) {
-	res.render('author',{});
+	res.render('author',{errors:[]});
 };
