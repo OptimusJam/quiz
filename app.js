@@ -45,6 +45,34 @@ app.use( function(req, res, next) {
 app.use('/', routes);
 //app.use('/users', users);
 
+//Auto-logout
+app.use(function(req, res, next){
+	
+	console.log("Funcion de AutoLog");
+	
+    if (req.session.user) { // si hay session
+        var now = (new Date()).getTime();
+        var diff = now - (req.session.backupTime || now);
+        if (!req.session.expired) req.session.expired = false;
+
+        if (diff > 120000) {                        // 2 minutos = 120000 milisegundos  
+            delete req.session.user;                // borra sesion anterior
+            delete req.session.backupTime;
+
+            req.session.expired = true;
+                    
+            if (req.method !== "GET"){               // Abortar
+                res.redirect("/");
+                return;
+            }
+        } else {
+            req.session.backupTime = now;
+        }
+    } 
+    
+    next();
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
 	console.log("Error 404");
@@ -78,6 +106,5 @@ app.use(function(err, req, res, next) {
 		errors: []
     });
 });
-
 
 module.exports = app;
